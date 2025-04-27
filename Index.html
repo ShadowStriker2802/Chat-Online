@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div id="login-screen">
+        <h2>Enter your username</h2>
+        <input type="text" id="username" placeholder="Your name">
+        <button onclick="setUsername()">Start Chat</button>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+        <h2>Chat Room</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="message" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <footer id="footer">
+        <p>Copyrights, Made By: Mukesh, 2025</p>
+    </footer>
+    
+    <script>
+        let ws;
+        let username = '';
+
+        function setUsername() {
+            username = document.getElementById("username").value.trim();
+            if (username) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("chat-container").style.display = "block";
+                startWebSocket();
+            }
+        }
+
+        function startWebSocket() {
+    ws = new WebSocket("wss://n3qf3cls-5000.inc1.devtunnels.ms/ws"); // Fixed WebSocket connection path
+
+    ws.onopen = () => {
+        console.log("Connected to the WebSocket server.");
+    };
+
+    ws.onmessage = async (event) => {
+        const chatBox = document.getElementById('chat-box');
+        const messageText = await event.data.text();
+
+        const message = document.createElement("p");
+        message.innerHTML = messageText;
+        chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+        console.log("Disconnected from server.");
+    };
+}
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from server.");
+            };
+        
+
+            function sendMessage() {
+    const msgInput = document.getElementById("message");
+    if (msgInput.value.trim() !== "" && ws && ws.readyState === WebSocket.OPEN) {
+        const fullMessage = `<strong>${username}:</strong> ${msgInput.value}`;
+
+        ws.send(fullMessage); // Send message through WebSocket
+        msgInput.value = ""; // Clear input after sending
+    } else {
+        console.error("WebSocket not open or message is empty!");
+    }
+}
+
+        
+
+    </script>
+</body>
+</html>
