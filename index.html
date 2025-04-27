@@ -38,54 +38,41 @@
         }
 
         function startWebSocket() {
-    const ws = new WebSocket("https://chat-online-bsxm.onrender.com/ws"); // Your live server URL
- // Fixed WebSocket connection path
+const ws = new WebSocket("wss://chat-online-bsxm.onrender.com/ws");
 
-    ws.onopen = () => {
-        console.log("Connected to the WebSocket server.");
-    };
+ws.onopen = () => {
+    console.log("Connected to WebSocket server");
+};
 
-    ws.onmessage = async (event) => {
-        const chatBox = document.getElementById('chat-box');
-        const messageText = await event.data.text();
+document.getElementById("send-btn").addEventListener("click", () => {
+    const messageInput = document.getElementById("message-input");
+    const message = messageInput.value.trim();
 
-        const message = document.createElement("p");
-        message.innerHTML = messageText;
-        chatBox.appendChild(message);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    };
-
-    ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-        console.log("Disconnected from server.");
-    };
-}
-
-            ws.onerror = (error) => {
-                console.error("WebSocket error:", error);
-            };
-
-            ws.onclose = () => {
-                console.log("Disconnected from server.");
-            };
-        
-
-            function sendMessage() {
-    const msgInput = document.getElementById("message");
-    if (msgInput.value.trim() !== "" && ws && ws.readyState === WebSocket.OPEN) {
-        const fullMessage = `<strong>${username}:</strong> ${msgInput.value}`;
-
-        ws.send(fullMessage); // Send message through WebSocket
-        msgInput.value = ""; // Clear input after sending
+    if (message) {
+        ws.send(message);  // Send message to WebSocket server
+        console.log("Message sent:", message); // Debugging log
+        messageInput.value = ""; // Clear input field after sending
     } else {
-        console.error("WebSocket not open or message is empty!");
+        console.warn("Cannot send empty message!");
     }
-}
+});
 
-        
+ws.onmessage = event => {
+    const chatBox = document.getElementById("chat-box");
+    const messageElement = document.createElement("p");
+    messageElement.innerText = event.data;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
+};
+
+ws.onerror = error => {
+    console.error("WebSocket error:", error);
+};
+
+ws.onclose = () => {
+    console.warn("Disconnected from WebSocket server");
+};
+  
 
     </script>
 </body>
