@@ -1,13 +1,9 @@
 {
-  "name": "messager",
-  "version": "1.0.0",
-  "main": "server.js",
+ {
+  "name": "my-package",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+    "build": "babel src -d lib",
+    "test": "jest"
+  }
+}
 }
