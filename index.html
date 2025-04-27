@@ -38,7 +38,8 @@
         }
 
         function startWebSocket() {
-    ws = new WebSocket("wss://n3qf3cls-5000.inc1.devtunnels.ms/ws"); // Fixed WebSocket connection path
+    const ws = new WebSocket("https://chat-online-bsxm.onrender.com/"); // Your live server URL
+ // Fixed WebSocket connection path
 
     ws.onopen = () => {
         console.log("Connected to the WebSocket server.");
