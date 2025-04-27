@@ -1,51 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Chat Room</h2>
-    <div id="chat-box"></div>
     
-    <input type="text" id="message-input" placeholder="Type a message...">
-    <button id="send-btn">Send</button>
+    <div id="login-screen">
+        <h2>Enter your username</h2>
+        <input type="text" id="username" placeholder="Your name">
+        <button onclick="setUsername()">Start Chat</button>
+    </div>
 
+    <div id="chat-container" style="display: none;">
+        <h2>Chat Room</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="message" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <footer id="footer">
+        <p>Copyrights, Made By: Mukesh, 2025</p>
+    </footer>
+    
     <script>
-        const ws = new WebSocket("wss://chat-online-bsxm.onrender.com/ws");
+        let ws;
+        let username = '';
 
-        ws.onopen = () => {
-            console.log("Connected to WebSocket server");
-        };
-
-        document.getElementById("send-btn").addEventListener("click", () => {
-            const messageInput = document.getElementById("message-input");
-            const message = messageInput.value.trim();
-
-            if (message) {
-                ws.send(message);  // Send message to WebSocket server
-                console.log("Message sent:", message); // Debugging log
-                messageInput.value = ""; // Clear input field after sending
-            } else {
-                console.warn("Cannot send empty message!");
+        function setUsername() {
+            username = document.getElementById("username").value.trim();
+            if (username) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("chat-container").style.display = "block";
+                startWebSocket();
             }
-        });
+        }
 
-        ws.onmessage = event => {
-            const chatBox = document.getElementById("chat-box");
-            const messageElement = document.createElement("p");
-            messageElement.innerText = event.data;
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        };
+        function startWebSocket() {
+    ws = new WebSocket("wss://chat-online-bsxm.onrender.com/ws"); // Fixed WebSocket connection path
 
-        ws.onerror = error => {
-            console.error("WebSocket error:", error);
-        };
+    ws.onopen = () => {
+        console.log("Connected to the WebSocket server.");
+    };
 
-        ws.onclose = () => {
-            console.warn("Disconnected from WebSocket server");
-        };
+    ws.onmessage = async (event) => {
+        const chatBox = document.getElementById('chat-box');
+        const messageText = await event.data.text();
+
+        const message = document.createElement("p");
+        message.innerHTML = messageText;
+        chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+        console.log("Disconnected from server.");
+    };
+}
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from server.");
+            };
+        
+
+            function sendMessage() {
+    const msgInput = document.getElementById("message");
+    if (msgInput.value.trim() !== "" && ws && ws.readyState === WebSocket.OPEN) {
+        const fullMessage = `<strong>${username}:</strong> ${msgInput.value}`;
+
+        ws.send(fullMessage); // Send message through WebSocket
+        msgInput.value = ""; // Clear input after sending
+    } else {
+        console.error("WebSocket not open or message is empty!");
+    }
+}
+
+        
+
     </script>
 </body>
 </html>
