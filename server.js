@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocket("https://chat-online-bsxm.onrender.com/"); // Your live server URL
 
 // Serve static files from "public" folder
 app.use(express.static(path.join(__dirname)));
