@@ -7,7 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true });
 
-// Serve static files from "public" folder
+// Use Render-assigned port dynamically
+const PORT = process.env.PORT || 5000;
+
+// Serve static files
 app.use(express.static(path.join(__dirname)));
 
 // Serve index.html when visiting "/"
@@ -15,17 +18,18 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Handle WebSocket connections properly
 server.on('upgrade', (request, socket, head) => {
-    if (request.url === "/ws") { // Ensure WebSocket only runs on "/ws" path
+    if (request.url === "/ws") {  // Ensure WebSocket listens only at "/ws"
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit('connection', ws, request);
         });
     } else {
-        socket.destroy(); // Prevent unknown upgrade requests
+        socket.destroy();  // Reject other upgrade requests
     }
 });
 
-
+// WebSocket event handling
 wss.on('connection', (ws) => {
     console.log('New WebSocket client connected.');
 
@@ -43,7 +47,7 @@ wss.on('connection', (ws) => {
     ws.on('close', () => console.log('Client disconnected.'));
 });
 
-// Start Server
-server.listen(5000, () => {
-    console.log('Server running on port 5000');
+// Start server
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
