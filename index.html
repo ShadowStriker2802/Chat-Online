@@ -4,76 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #chat-box {
+            width: 80%;
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: auto;
+        }
+        #message-input {
+            width: 70%;
+            padding: 10px;
+        }
+        #send-btn {
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
+    <h2>Chat Room</h2>
+    <div id="chat-box"></div>
     
-    <div id="login-screen">
-        <h2>Enter your username</h2>
-        <input type="text" id="username" placeholder="Your name">
-        <button onclick="setUsername()">Start Chat</button>
-    </div>
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button id="send-btn">Send</button>
 
-    <div id="chat-container" style="display: none;">
-        <h2>Chat Room</h2>
-        <div id="chat-box"></div>
-        <input type="text" id="message" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-    <footer id="footer">
-        <p>Copyrights, Made By: Mukesh, 2025</p>
-    </footer>
-    
     <script>
-        let ws;
-        let username = '';
+        const ws = new WebSocket("wss://chat-online-bsxm.onrender.com/ws");
 
-        function setUsername() {
-            username = document.getElementById("username").value.trim();
-            if (username) {
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("chat-container").style.display = "block";
-                startWebSocket();
+        ws.onopen = () => {
+            console.log("Connected to WebSocket server");
+        };
+
+        document.getElementById("send-btn").addEventListener("click", () => {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value.trim();
+
+            if (message) {
+                ws.send(message);  // Send message to WebSocket server
+                console.log("Message sent:", message); // Debugging log
+                messageInput.value = ""; // Clear input field after sending
+            } else {
+                console.warn("Cannot send empty message!");
             }
-        }
+        });
 
-        function startWebSocket() {
-const ws = new WebSocket("wss://chat-online-bsxm.onrender.com/ws");
+        ws.onmessage = event => {
+            const chatBox = document.getElementById("chat-box");
+            const messageElement = document.createElement("p");
+            messageElement.innerText = event.data;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
 
-ws.onopen = () => {
-    console.log("Connected to WebSocket server");
-};
+        ws.onerror = error => {
+            console.error("WebSocket error:", error);
+        };
 
-document.getElementById("send-btn").addEventListener("click", () => {
-    const messageInput = document.getElementById("message-input");
-    const message = messageInput.value.trim();
-
-    if (message) {
-        ws.send(message);  // Send message to WebSocket server
-        console.log("Message sent:", message); // Debugging log
-        messageInput.value = ""; // Clear input field after sending
-    } else {
-        console.warn("Cannot send empty message!");
-    }
-});
-
-ws.onmessage = event => {
-    const chatBox = document.getElementById("chat-box");
-    const messageElement = document.createElement("p");
-    messageElement.innerText = event.data;
-    chatBox.appendChild(messageElement);
-    chatBox.scrollTop = chatBox.scrollHeight;
-};
-
-ws.onerror = error => {
-    console.error("WebSocket error:", error);
-};
-
-ws.onclose = () => {
-    console.warn("Disconnected from WebSocket server");
-};
-  
-
+        ws.onclose = () => {
+            console.warn("Disconnected from WebSocket server");
+        };
     </script>
 </body>
 </html>
